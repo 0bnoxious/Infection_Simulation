@@ -104,7 +104,7 @@ fn populate(mut commands: Commands) {
                     })),
                     ..default()
                 },
-                transform: Transform::from_translation(Vec3::new(posx as f32, posy as f32, 0.)),
+                transform: Transform::from_translation(Vec3::new(posx, posy, 0.)),
                 ..default()
             },
             InfectTimer {
