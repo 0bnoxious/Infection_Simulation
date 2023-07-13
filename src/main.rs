@@ -9,7 +9,6 @@ pub const PERSONCOUNT: i32 = 5000;
 pub const PERSONSPEED: f32 = 50.;
 pub const PERSONSIZE: f32 = 10.;
 pub const BOXSIZE: f32 = 720.;
-pub const PLAYERSPEED: f32 = 100.;
 
 fn main() {
     App::new()
@@ -31,14 +30,6 @@ fn main() {
         .run()
 }
 
-pub fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-
-    commands.insert_resource(TimerRes {
-        timer: Timer::new(Duration::from_secs(2), TimerMode::Repeating),
-    });
-}
-
 #[derive(Resource)]
 struct TimerRes {
     timer: Timer,
@@ -58,6 +49,14 @@ pub struct Person {
 pub struct Player {
     pub is_infected: bool,
     pub direction: Vec3,
+}
+
+pub fn setup(mut commands: Commands) {
+    commands.spawn(Camera2dBundle::default());
+
+    commands.insert_resource(TimerRes {
+        timer: Timer::new(Duration::from_secs(2), TimerMode::Repeating),
+    });
 }
 
 fn populate(mut commands: Commands) {
@@ -87,6 +86,7 @@ fn populate(mut commands: Commands) {
     ));
 
     let mut v = vec![];
+    //Healthy people
     for _ in 0..PERSONCOUNT {
         let posx = rng.gen_range(-BOXSIZE..=BOXSIZE);
         let posy = rng.gen_range(-BOXSIZE..=BOXSIZE);
@@ -151,6 +151,9 @@ fn infect(
 ) {
     let mut rng = rand::thread_rng();
 
+    //Nested query between infected and Healthy people -> O(N*M)
+    //Old query was between everyone, twice (*for every people, check if is infected or healthy*) -> O(N^2)
+    //Efficient queries are fun!
     for infected_transform in &query_infected {
         for (entity, healthy_transform, mut sprite, mut infect_timer) in &mut query_healthy {
             let distance = infected_transform
